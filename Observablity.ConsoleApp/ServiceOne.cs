@@ -31,8 +31,8 @@ namespace Observablity.ConsoleApp
                 eventTags.Add("google body lenght", responseContent.Length);
                 activity?.AddEvent(new("google'a istek tamamlandi", tags: eventTags));
 
-                var serviceTwo=new ServiceTwo();
-                var fileLenght = serviceTwo.WriteToFile("Omar Javanshirli");
+                var serviceTwo = new ServiceTwo();
+                var fileLenght = await serviceTwo.WriteToFile("Omar Javanshirli");
 
                 return responseContent.Length;
             }

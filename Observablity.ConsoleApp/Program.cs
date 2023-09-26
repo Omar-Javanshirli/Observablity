@@ -3,12 +3,31 @@ using Observablity.ConsoleApp;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 Console.WriteLine("Hello, World!");
 Console.WriteLine();
 
 
-var traceProvider = Sdk.CreateTracerProviderBuilder()
+ActivitySource.AddActivityListener(new ActivityListener()
+{
+    ShouldListenTo = source => source.Name == OpenTelemetryConstants.ActivitySourceFileName,
+    ActivityStarted= activity =>
+    {
+        Console.WriteLine("Activity basladi");
+    },
+    ActivityStopped= activity =>
+    { 
+        Console.WriteLine("Activity bitdi"); 
+    }
+});
+
+
+using var traceProviderFile = Sdk.CreateTracerProviderBuilder()
+    .AddSource(OpenTelemetryConstants.ActivitySourceFileName).Build();
+
+
+using var traceProvider = Sdk.CreateTracerProviderBuilder()
     .AddSource(OpenTelemetryConstants.ActivitySourceName)
     .ConfigureResource(configure =>
     {
@@ -18,7 +37,7 @@ var traceProvider = Sdk.CreateTracerProviderBuilder()
                     new KeyValuePair<string, object>("host.machineName", Environment.MachineName),
                     new KeyValuePair<string, object>("host.environment", "dev"),
                 });
-    }).AddConsoleExporter().Build();
+    }).AddConsoleExporter().AddOtlpExporter().Build();
 
 
 
