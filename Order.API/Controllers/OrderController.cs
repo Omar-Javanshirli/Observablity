@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Order.API.OrderServices;
 
 namespace Order.API.Controllers
@@ -18,8 +17,7 @@ namespace Order.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(OrderCreateRequestDto request)
         {
-            await _orderService.CreateAsync(request);
-            return Ok(new OrderCreateResponseDto() { Id=new Random().Next(1,500)});
+            return Ok(await _orderService.CreateAsync(request));
         }
     }
 }

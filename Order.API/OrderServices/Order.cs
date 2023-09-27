@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string OrderCode { get; set; } = null!;
         public DateTime Created { get; set; }
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public List<OrderItem> OrderItems { get; set; } = null!;
     }
@@ -22,5 +22,7 @@
         public int ProductId { get; set; }
         public int Count { get; set; }
         public decimal UnitPrice { get; set; }
+        public int OrderId { get; set; }
+        public Order Order { get; set; } = null!;
     }
 }

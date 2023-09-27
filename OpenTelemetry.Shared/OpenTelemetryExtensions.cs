@@ -35,9 +35,26 @@ namespace OpenTelemetry.Shared
 
                     //errorlari daha detalli gostermek ucun
                     aspNetCoreOptions.RecordException = true;
+
+                    aspNetCoreOptions.EnrichWithException = (activity, exception) =>
+                    {
+                        // Bilerek boş bırakıldı. Örnek göstermek için. elave datlar yazmaq ucun istifade olunur.
+                        //bir Action delegatdir. eger ki exceptionnin yaninda basqa datalarda gostermek isdeyirikse 
+                        //bu delegatin vasitesi ile edirik. Datani zengilesdirmek ucun istifade olunur.
+                    };
+
                 });
                 options.AddConsoleExporter();
                 options.AddOtlpExporter(); //Jaeger
+                options.AddEntityFrameworkCoreInstrumentation(efCoreOptions =>
+                {
+                    efCoreOptions.SetDbStatementForText = true;
+                    efCoreOptions.SetDbStatementForStoredProcedure = true;
+                    efCoreOptions.EnrichWithIDbCommand = (activity, dbCommand) =>
+                    {
+                        //bilerek bos buraxildi numune ucun
+                    };
+                });
             });
         }
     }
