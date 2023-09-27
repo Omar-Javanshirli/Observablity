@@ -1,9 +1,6 @@
 using Common.Shared;
-using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Shared;
-using Order.API.Models;
-using Order.API.OrderServices;
-using Order.API.StockServices;
+using Stock.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,19 +10,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<StockService>();
 builder.Services.AddOpenTelemetryExt(builder.Configuration);
-
-builder.Services.AddHttpClient<StockService>(options =>
-{
-    options.BaseAddress = new Uri((builder.Configuration.GetSection("ApiServices")["StockApi"])!);
-});
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
-});
+builder.Services.AddScoped<StockService>();
 
 var app = builder.Build();
 

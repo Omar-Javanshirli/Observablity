@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace OpenTelemetry.Shared
 {
@@ -53,6 +54,27 @@ namespace OpenTelemetry.Shared
                     efCoreOptions.EnrichWithIDbCommand = (activity, dbCommand) =>
                     {
                         //bilerek bos buraxildi numune ucun
+                    };
+                });
+                options.AddHttpClientInstrumentation(httpOptions =>
+                {
+                    // burada yazilan kodlar bizim programimizda basqa programlara gondermis oldugumuz sorgulari Trace edir.
+                    // yeni A serviceden B service sorgu atdigimiz zaman requestin body hissesini ve gonderdiyimiz sorgudan 
+                    // ne netice elde etdik onu gore gilirik yeni response-un body hissesin.
+                    httpOptions.EnrichWithHttpRequestMessage = async (activity, request) =>
+                    {
+                        var requestContent = "empty";
+
+                        if (request.Content != null)
+                            requestContent = await request.Content.ReadAsStringAsync();
+
+                        activity?.SetTag("http.request.body", requestContent);
+                    };
+
+                    httpOptions.EnrichWithHttpResponseMessage = async (activity, response) =>
+                    {
+                        if (response.Content != null)
+                            activity.SetTag("http.response.body", await response.Content.ReadAsStringAsync());
                     };
                 });
             });
