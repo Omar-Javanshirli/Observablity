@@ -1,6 +1,7 @@
 ﻿using Common.Shared.Dtos;
 using OpenTelemetry.Shared;
 using Order.API.Models;
+using Order.API.RedisServices;
 using Order.API.StockServices;
 using System.Diagnostics;
 using System.Net;
@@ -11,15 +12,28 @@ namespace Order.API.OrderServices
     {
         private readonly AppDbContext _appDbContext;
         private readonly StockService _stockServices;
+        private readonly RedisService _redisService;
 
-        public OrderService(AppDbContext appDbContext, StockService stockServices)
+        public OrderService(AppDbContext appDbContext, StockService stockServices, RedisService redisService)
         {
             _appDbContext = appDbContext;
             _stockServices = stockServices;
+            _redisService = redisService;
         }
 
         public async Task<ResponseDto<OrderCreateResponseDto>> CreateAsync(OrderCreateRequestDto request)
         {
+            using (var redisActivity = ActivitySourceProvider.Source.StartActivity("Redis Request"))
+            {
+                // OpenTelemetry.Instrumentation.Redis paketini yuklediyimiz zaman
+                //aftomatik redise yazilan datalari activity edecek. Eger istisek ozumuzde yarada bilerik.
+                // using blogu ile. ama using yazmasax bele yeni activity yaratmasaq bele paket sahesinde 
+                //ozu activity edecek.
+                await _redisService.GetDatabase(3).StringSetAsync("userId",request.UserId);
+                //var redisUserId=_redisService.GetDatabase(3).StringGetAsync("userId");
+            }
+
+
             Activity.Current?.SetTag("Asp .Net Core (Instrumentation) tag 1", "Asp .Net Core (Instrumentation) tag value");
 
             using var activity = ActivitySourceProvider.Source.StartActivity();

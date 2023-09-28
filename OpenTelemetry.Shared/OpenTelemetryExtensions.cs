@@ -77,6 +77,11 @@ namespace OpenTelemetry.Shared
                             activity.SetTag("http.response.body", await response.Content.ReadAsStringAsync());
                     };
                 });
+                options.AddRedisInstrumentation(redisOptions =>
+                {
+                    //database ile elaqeli statmentleri detalli sekilde save et.
+                    redisOptions.SetVerboseDatabaseStatements = true;
+                });
             });
         }
     }
