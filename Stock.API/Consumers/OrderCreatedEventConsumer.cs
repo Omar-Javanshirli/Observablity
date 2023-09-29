@@ -1,5 +1,7 @@
 ﻿using Common.Shared.Events;
 using MassTransit;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace Stock.API.Consumers
 {
@@ -7,7 +9,11 @@ namespace Stock.API.Consumers
     {
         public Task Consume(ConsumeContext<OrderCreatedEvent> context)
         {
-            throw new NotImplementedException();
+            Thread.Sleep(2000);
+
+            Activity.Current?.SetTag("message.body", JsonSerializer.Serialize(context.Message));
+
+            return Task.CompletedTask;
         }
     }
 }
