@@ -39,6 +39,9 @@ namespace Order.API.OrderServices
             using var activity = ActivitySourceProvider.Source.StartActivity();
             activity?.AddEvent(new("Sifaris prosesi basladi"));
 
+            //microservicler arasi data oturmek ucun lazim olur. requestin header hissesinin Tracestate alaninda dasiyacax. 
+            activity?.SetBaggage("userId", request.UserId.ToString());
+
             var newOrder = new Order()
             {
                 Created = DateTime.Now,
