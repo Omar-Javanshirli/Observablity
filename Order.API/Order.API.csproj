@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common.Shared\Common.Shared.csproj" />
+    <ProjectReference Include="..\Loging.Shared\Loging.Shared.csproj" />
     <ProjectReference Include="..\OpenTelemetry.Shared\OpenTelemetry.Shared.csproj" />
   </ItemGroup>
 
