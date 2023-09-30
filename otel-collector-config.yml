@@ -1,0 +1,36 @@
+﻿#datani hardan alacaq. OTLP ile birgə həm grpc dən həm http dən gələ bilər.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+#Proses dir toplu olaraq gələn dataları işle və elaqeli kaynağa göndər
+processors:
+  batch:
+
+#haraya göndəriləcək. New Relic ilə əlaqəli set up-i düzədəcəyimiz yerdir.
+exporters:
+  otlp:
+   endpoint : https://otlp.eu01.nr-data.net:4318
+   headers:
+     api-key: "eu01xx2f9a76f0ee8cb2ca86a54d6d3fbb28NRAL"
+
+#Progaramin düzgün işləyib işləmədiyini check edir.
+extensions:
+  health_check:
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]

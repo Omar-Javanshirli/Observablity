@@ -30,22 +30,26 @@ namespace OpenTelemetry.Shared
                 {
                     aspNetCoreOptions.Filter = (context =>
                     {
+                        //Controller "api" olanlarin trace etmese ucun. eks halda program ayaga qalxan oz datalarinida trace edir. 
                         if (!string.IsNullOrEmpty(context.Request.Path.Value))
                             return context.Request.Path.Value.Contains("api", StringComparison.InvariantCulture);
 
                         return false;
                     });
 
-                    //errorlari daha detalli gostermek ucun
+                    // RecordException true oldugu zaman program bir exaception atarsa exception save ediler.
+                    //Eger sen exceptionlri loglamada gormey isdeyirsense false edib Serilogun vasitesi ile exceptionlari tuta bilersen.
                     aspNetCoreOptions.RecordException = true;
 
-                    aspNetCoreOptions.EnrichWithException = (activity, exception) =>
-                    {
-                        // Bilerek boş bırakıldı. Örnek göstermek için. elave datlar yazmaq ucun istifade olunur.
-                        //bir Action delegatdir. eger ki exceptionnin yaninda basqa datalarda gostermek isdeyirikse 
-                        //bu delegatin vasitesi ile edirik. Datani zengilesdirmek ucun istifade olunur.
-                    };
-
+                    // Serilog üzerinden elasticsearch db'ye hatalar gönderildiği için kapatıldı.Eger xetalari Trace data da saxlamaq
+                    //isd'yirikse asagida ki kodu yazmaq lazimdi. Ama loglar daha cox NoSql database de saxlandigina gore
+                    //loglari elasticsearch db de ve ya basqa NoSql database saxlamaq daha duzgun yoldur.
+                    //aspNetCoreOptions.EnrichWithException = (activity, exception) =>
+                    //{
+                    //    // Bilerek boş bırakıldı. Örnek göstermek için. elave datlar yazmaq ucun istifade olunur.
+                    //    //bir Action delegatdir. eger ki exceptionnin yaninda basqa datalarda gostermek isdeyirikse 
+                    //    //bu delegatin vasitesi ile edirik. Datani zengilesdirmek ucun istifade olunur.
+                    //};
                 });
                 options.AddConsoleExporter();
                 options.AddOtlpExporter(); //Jaeger
@@ -60,6 +64,12 @@ namespace OpenTelemetry.Shared
                 });
                 options.AddHttpClientInstrumentation(httpOptions =>
                 {
+                    httpOptions.FilterHttpRequestMessage = (request) =>
+                    {
+                        //pathin sonun da "9200" var ise  ornek "http://localhost:9200" buna aid trace data istehsal etmesin.
+                        return !request.RequestUri!.AbsolutePath.Contains("9200", StringComparison.InvariantCulture);
+                    };
+
                     // burada yazilan kodlar bizim programimizda basqa programlara gondermis oldugumuz sorgulari Trace edir.
                     // yeni A serviceden B service sorgu atdigimiz zaman requestin body hissesini ve gonderdiyimiz sorgudan 
                     // ne netice elde etdik onu gore gilirik yeni response-un body hissesin.

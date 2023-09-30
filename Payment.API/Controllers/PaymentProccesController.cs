@@ -9,6 +9,13 @@ namespace Payment.API.Controllers
     [ApiController]
     public class PaymentProccesController : ControllerBase
     {
+        private readonly ILogger<PaymentProccesController> _logger;
+
+        public PaymentProccesController(ILogger<PaymentProccesController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpPost]
         public IActionResult Create(PaymentCreateRequestDto request)
         {
@@ -18,7 +25,12 @@ namespace Payment.API.Controllers
             const decimal balance = 1000;
 
             if (request.TotalPrice > balance)
+            {
+                _logger.LogWarning("balansda kifayet qeder vesait yoxdur. orderCore : {@orderCode}", request.OrderCode);
                 return BadRequest(ResponseDto<PaymentCreateResponseDto>.Fail(400, "balansda kifayet qeder vasait yoxdur"));
+            }
+
+            _logger.LogInformation("kart prosesi basari ile heyata kecmisdir. orderCore : {@orderCode}", request.OrderCode);
 
             return Ok(ResponseDto<PaymentCreateResponseDto>.Success
                 (200,new PaymentCreateResponseDto() { Description="kart prosesi ugurla heyata kecmisdir"}));

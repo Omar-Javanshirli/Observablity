@@ -15,12 +15,14 @@ namespace Order.API.OrderServices
         private readonly AppDbContext _appDbContext;
         private readonly StockService _stockServices;
         private readonly RedisService _redisService;
-      
-        public OrderService(AppDbContext appDbContext, StockService stockServices, RedisService redisService)
+        private readonly ILogger<OrderService> _logger;
+
+        public OrderService(AppDbContext appDbContext, StockService stockServices, RedisService redisService, ILogger<OrderService> logger)
         {
             _appDbContext = appDbContext;
             _stockServices = stockServices;
             _redisService = redisService;
+            _logger = logger;
         }
 
         public async Task<ResponseDto<OrderCreateResponseDto>> CreateAsync(OrderCreateRequestDto request)
@@ -40,6 +42,8 @@ namespace Order.API.OrderServices
 
             using var activity = ActivitySourceProvider.Source.StartActivity();
             activity?.AddEvent(new("Sifaris prosesi basladi"));
+
+            _logger.LogInformation("Sifaris database save edildi. {@userId}",request.UserId);
 
             //microservicler arasi data oturmek ucun lazim olur. requestin header hissesinin Tracestate alaninda dasiyacax. 
             activity?.SetBaggage("userId", request.UserId.ToString());

@@ -9,10 +9,11 @@ namespace Stock.API.Services
     public class StockService
     {
         private readonly PaymentService _paymentService;
-
-        public StockService(PaymentService paymentService)
+        private readonly ILogger<StockService> _logger;
+        public StockService(PaymentService paymentService, ILogger<StockService> logger)
         {
             _paymentService = paymentService;
+            _logger = logger;
         }
 
         private Dictionary<int, int> GetProductStockList()
@@ -45,6 +46,8 @@ namespace Stock.API.Services
                 return ResponseDto<StockCheckAndPaymentProcessResponseDto>.Fail
                     (HttpStatusCode.BadRequest.GetHashCode(), "stock yetersiz");
 
+            //throw new DivideByZeroException("bolunme xetasi bas verdi");
+            _logger.LogInformation("stock ayrildi. orderCore : {@orderCode}", request.OrderCode);
 
 
             var (isSuccess, failMessage) = await _paymentService.CreatePaymentProcess(new PaymentCreateRequestDto()
